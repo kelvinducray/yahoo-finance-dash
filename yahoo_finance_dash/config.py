@@ -6,7 +6,8 @@ from pydantic import BaseSettings
 
 class DevSettings(BaseSettings):
     ENVIRONMENT_NAME = "Development"
-    A: str = "b"
+
+    YAHOO_FINANCE_API_KEY: str
 
     LOGGING_CONFIG = {
         "version": 1,
@@ -27,11 +28,12 @@ class DevSettings(BaseSettings):
         "root": {"level": "INFO", "handlers": ["default"]},
     }
 
+    class Config:
+        env_file = ".env"
+
 
 class ProdSettings(BaseSettings):
     ENVIRONMENT_NAME = "Production"
-
-    A: str = "c"
 
 
 @lru_cache
