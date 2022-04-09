@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  yahoo_finance_dash:
+    build:
+      context: .
+      dockerfile: Dockerfile
