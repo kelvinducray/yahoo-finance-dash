@@ -15,7 +15,7 @@ layout = html.Div(
                 "data": [
                     {
                         "x": [1, 2, 3],
-                        "y": [1, 2, 3],
+                        "y": [3, 2, 3],
                         "type": "lines",
                     },
                 ],
@@ -27,7 +27,7 @@ layout = html.Div(
                 "data": [
                     {
                         "x": [1, 2, 3],
-                        "y": [1, 2, 3],
+                        "y": [4, 2, 3],
                         "type": "lines",
                     },
                 ],

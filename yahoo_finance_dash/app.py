@@ -1,85 +1,39 @@
+from typing import Optional
+
 import dash_bootstrap_components as dbc
-from dash import Dash, dcc, html
-from dash.dependencies import Input, Output, State
+from dash import Dash, html
+from dash.dependencies import Input, Output
 
-from .dashboards import dashx, dashy, dashz, index
+from .dashboards import dashboards_config, index
+from .page_template import get_layout
 
+# Initialise application and apply theme
 app = Dash(
     __name__,
     external_stylesheets=[dbc.themes.LUX],
 )
 app_server = app.server  # For running with gunicorn
 
-dropdown = dbc.DropdownMenu(
-    children=[
-        dbc.DropdownMenuItem("Home", href="/index"),
-        dbc.DropdownMenuItem("DashX", href="/dashx"),
-        dbc.DropdownMenuItem("DashY", href="/dashy"),
-        dbc.DropdownMenuItem("DashZ", href="/dashz"),
-    ],
-    nav=True,
-    in_navbar=True,
-    label="Explore",
+# Set the template for the page
+app.layout = get_layout()
+
+# Grab the page content after the navigation is changed
+@app.callback(
+    Output("page-content", "children"),
+    Input("url", "pathname"),
 )
+def display_page(pathname: Optional[str]) -> html.Div:
+    """
+    This is implemented in this way so that all the page configuration
+    is specified in the 'dashboards' directory, and not in the code.
 
-navbar = dbc.Navbar(
-    dbc.Container(
-        [
-            html.A(
-                # Use row and col to control vertical alignment of logo / brand
-                dbc.Row(
-                    [
-                        dbc.Col(html.Img(src="/assets/virus.png", height="30px")),
-                        dbc.Col(dbc.NavbarBrand("COVID-19 DASH", className="ml-2")),
-                    ],
-                    align="center",
-                    # no_gutters=True,
-                ),
-                href="/home",
-            ),
-            dbc.NavbarToggler(id="navbar-toggler2"),
-            dbc.Collapse(
-                dbc.Nav(
-                    # right align dropdown menu with ml-auto className
-                    [dropdown],
-                    className="ml-auto",
-                    navbar=True,
-                ),
-                id="navbar-collapse2",
-                navbar=True,
-            ),
-        ]
-    ),
-    color="dark",
-    dark=True,
-    className="mb-4",
-)
+    Here we simply lookup the module name based on the url or just return
+    the index page if no dashboard module has that name.
+    """
+    if pathname:
+        page_name = pathname.replace("/", "")
+        if page_name in dashboards_config:
+            dc = dashboards_config[page_name]
+            return dc.page_content
 
-
-def toggle_navbar_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
-
-
-for i in [2]:
-    app.callback(
-        Output(f"navbar-collapse{i}", "is_open"),
-        [Input(f"navbar-toggler{i}", "n_clicks")],
-        [State(f"navbar-collapse{i}", "is_open")],
-    )(toggle_navbar_collapse)
-
-# embedding the navigation bar
-app.layout = html.Div([dcc.Location(id="url", refresh=False), navbar, html.Div(id="page-content")])
-
-
-@app.callback(Output("page-content", "children"), [Input("url", "pathname")])
-def display_page(pathname):
-    if pathname == "/dashx":
-        return dashx.layout
-    elif pathname == "/dashy":
-        return dashy.layout
-    elif pathname == "/dashz":
-        return dashz.layout
-    else:
-        return index.layout
+    return index.layout

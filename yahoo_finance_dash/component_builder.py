@@ -9,7 +9,7 @@ def make_line_graph(
     x: Optional[pd.Series],
     y: Optional[pd.Series],
 ) -> dcc.Graph:
-    if not x or not y:
+    if x is None or y is None:
         x = y = []
         title += " - DATA RETRIEVAL FAILED."
     graph = dcc.Graph(
